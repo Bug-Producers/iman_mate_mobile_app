@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:iman_mate_mobile_app/features/authentication/view/login_screen.dart';
 import 'core/theme/app_theme.dart';
-import 'features/authentication/presentation/register_screen.dart';
-import 'features/splash/presentation/splash_screen.dart';
+import 'features/home/view/home_screen.dart';
+import 'features/splash/view/splash_screen.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+
+void main() async{
+
+  WidgetsFlutterBinding.ensureInitialized();
+   await Hive.initFlutter();
+
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -33,7 +39,8 @@ class MyApp extends ConsumerWidget {
           themeMode: themeMode,
           routes: {
             '/': (context) => const SplashScreen(),
-            '/register': (context) => const RegisterScreen(),
+            'home':(context) => HomeScreen(),
+            'login':(context) => LoginScreen(),
           },
         );
       },
