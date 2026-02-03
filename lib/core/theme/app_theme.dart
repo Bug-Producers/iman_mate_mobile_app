@@ -24,6 +24,30 @@ class AppTheme extends _$AppTheme {
     return ThemeMode.light;
   }
 
+  ThemeData get lightTheme => ThemeData(
+        useMaterial3: true,
+        scaffoldBackgroundColor: _lightBg,
+        colorScheme: const ColorScheme.light(
+          primary: _lightPrimary,
+          secondary: _lightSecondary,
+          surface: _lightSurface,
+          onSurface: _lightText,
+          onSecondary: _lightTextSecondary,
+        ),
+      );
+
+  ThemeData get darkTheme => ThemeData(
+        useMaterial3: true,
+        scaffoldBackgroundColor: _darkBg,
+        colorScheme: const ColorScheme.dark(
+          primary: _darkPrimary,
+          secondary: _darkSecondary,
+          surface: _darkSurface,
+          onSurface: _darkText,
+          onSecondary: _darkTextSecondary,
+        ),
+      );
+
   void setTheme(ThemeMode mode) {
     if (mode != ThemeMode.system) {
       state = mode;
@@ -33,15 +57,4 @@ class AppTheme extends _$AppTheme {
   void toggleTheme() {
     state = state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
   }
-
-  Color primaryColor() => state == ThemeMode.dark ? _darkPrimary : _lightPrimary;
-  Color secondaryColor() => state == ThemeMode.dark ? _darkSecondary : _lightSecondary;
-  Color bgColor() => state == ThemeMode.dark ? _darkBg : _lightBg;
-  Color surfaceColor() => state == ThemeMode.dark ? _darkSurface : _lightSurface;
-  Color textColor() => state == ThemeMode.dark ? _darkText : _lightText;
-  Color textSecondaryColor() => state == ThemeMode.dark ? _darkTextSecondary : _lightTextSecondary;
-
-  String getThemeStatus() => state == ThemeMode.dark ? "Dark Mode" : "Light Mode";
-
-
 }
