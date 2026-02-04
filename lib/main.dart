@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:iman_mate_mobile_app/features/authentication/view/login_screen.dart';
+import 'package:iman_mate_mobile_app/features/authentication/presentation/screens/login_screen.dart';
 import 'core/theme/app_theme.dart';
-import 'features/home/view/home_screen.dart';
-import 'features/splash/view/splash_screen.dart';
+import 'features/home/presentation/screens/home_screen.dart';
+import 'features/splash/presentation/screens/splash_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 

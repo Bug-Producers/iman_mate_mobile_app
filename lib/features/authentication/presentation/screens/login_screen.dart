@@ -12,9 +12,6 @@ class LoginScreen extends ConsumerWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            ref.read(authenticationControllerProvider.notifier).login().then((_) {
-               Navigator.of(context).pushReplacementNamed('home');
-            });
           },
           child: const Text('Login'),
         ),
