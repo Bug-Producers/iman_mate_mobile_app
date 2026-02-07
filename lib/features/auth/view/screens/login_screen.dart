@@ -41,10 +41,12 @@ class LoginScreen extends ConsumerWidget {
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Center(
             child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                   // Minimal Logo Section
                   Icon(
                     Icons.mosque_outlined, 
@@ -202,6 +204,7 @@ class LoginScreen extends ConsumerWidget {
                     ],
                   ),
                 ],
+              ),
               ),
             ),
           ),

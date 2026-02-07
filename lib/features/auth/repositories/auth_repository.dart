@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../core/network/dio_client.dart';
-import 'auth_local_service.dart';
-import 'models/auth_models.dart';
+import '../services/auth_local_service.dart';
 
 class AuthRepository {
   final DioClient _dioClient;

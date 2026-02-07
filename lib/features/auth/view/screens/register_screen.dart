@@ -46,7 +46,9 @@ class RegisterScreen extends ConsumerWidget {
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Center(
             child: SingleChildScrollView(
-              child: Column(
+              child: Form(
+                key: _formKey,
+                child: Column(
                  mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -161,6 +163,7 @@ class RegisterScreen extends ConsumerWidget {
                     ],
                   ),
                 ],
+              ),
               ),
             ),
           ),

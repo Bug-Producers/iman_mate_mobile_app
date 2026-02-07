@@ -2,15 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 class DioClient {
-  static final DioClient _instance = DioClient._internal();
   late final Dio _dio;
   String? _token;
 
-  factory DioClient() {
-    return _instance;
-  }
-
-  DioClient._internal() {
+  DioClient() {
     _dio = Dio(
       BaseOptions(
         baseUrl: 'http://localhost:8000/api/v1',
@@ -29,8 +24,7 @@ class DioClient {
         responseBody: true,
       ));
     }
-    
-    // Auth Interceptor
+
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
         if (_token != null && _token!.isNotEmpty) {
@@ -40,7 +34,7 @@ class DioClient {
       },
     ));
   }
-  
+
   void setToken(String? token) {
     _token = token;
   }
