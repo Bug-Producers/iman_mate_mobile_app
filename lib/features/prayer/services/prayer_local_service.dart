@@ -19,12 +19,9 @@ class PrayerLocalService {
     }
   }
 
-  // --- Prayer Days ---
-
   Box<PrayerDayModel> get _prayerBox => Hive.box<PrayerDayModel>(_prayerBoxName);
 
   Future<void> savePrayerDay(PrayerDayModel day) async {
-    // Key format: YYYY-MM-DD
     final key = _getDateKey(day.date);
     await _prayerBox.put(key, day);
   }
@@ -40,8 +37,6 @@ class PrayerLocalService {
     }).toList();
   }
 
-  // --- Configuration ---
-
   Box<PrayerScoreConfigModel> get _configBox => Hive.box<PrayerScoreConfigModel>(_configBoxName);
 
   Future<void> saveConfig(PrayerScoreConfigModel config) async {
@@ -51,8 +46,6 @@ class PrayerLocalService {
   PrayerScoreConfigModel getConfig() {
     return _configBox.get('config') ?? PrayerScoreConfigModel();
   }
-
-  // --- Monthly Summary ---
 
   Box<MonthlySummaryModel> get _monthlyBox => Hive.box<MonthlySummaryModel>(_monthlyBoxName);
 
@@ -65,8 +58,6 @@ class PrayerLocalService {
     final key = '$year-$month';
     return _monthlyBox.get(key);
   }
-
-  // --- Helpers ---
 
   String _getDateKey(DateTime date) {
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";

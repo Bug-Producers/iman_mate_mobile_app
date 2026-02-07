@@ -8,8 +8,10 @@ part 'prayer_models.g.dart';
 class UserLocationModel {
   @HiveField(0)
   final double lat;
+
   @HiveField(1)
   final double lng;
+
   @HiveField(2)
   final DateTime timestamp;
 
@@ -29,14 +31,19 @@ class UserLocationModel {
 class PrayerTimesModel {
   @HiveField(0)
   final String fajr;
+
   @HiveField(1)
-  final String sunrise; // Helpful for logic
+  final String sunrise;
+
   @HiveField(2)
   final String dhuhr;
+
   @HiveField(3)
   final String asr;
+
   @HiveField(4)
   final String maghrib;
+
   @HiveField(5)
   final String isha;
 
@@ -71,13 +78,13 @@ enum PrayerStatus {
 class PrayerDayModel {
   @HiveField(0)
   final DateTime date;
-  
+
   @HiveField(1)
   final PrayerTimesModel timings;
-  
+
   @HiveField(2)
-  final Map<String, PrayerStatus> statuses; // e.g. "Fajr": PrayerStatus.onTime
-  
+  final Map<String, PrayerStatus> statuses;
+
   @HiveField(3)
   final double dailyScore;
 

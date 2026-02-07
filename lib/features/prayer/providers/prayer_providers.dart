@@ -9,8 +9,6 @@ import '../services/prayer_api_service.dart';
 import '../repositories/prayer_repository.dart';
 import '../../../core/services/network/dio_provider.dart';
 
-// --- Services ---
-
 final prayerLocalServiceProvider = Provider<PrayerLocalService>((ref) {
   return PrayerLocalService();
 });
@@ -24,8 +22,6 @@ final prayerApiServiceProvider = Provider<PrayerApiService>((ref) {
   return PrayerApiService(dio.dio);
 });
 
-// --- Repository ---
-
 final prayerRepositoryProvider = Provider<PrayerRepository>((ref) {
   final local = ref.watch(prayerLocalServiceProvider);
   final location = ref.watch(locationLocalServiceProvider);
@@ -34,32 +30,19 @@ final prayerRepositoryProvider = Provider<PrayerRepository>((ref) {
   return PrayerRepository(local, location, api);
 });
 
-// --- Initialization ---
-
 final prayerInitProvider = FutureProvider<void>((ref) async {
   final repo = ref.read(prayerRepositoryProvider);
   await repo.init();
   await repo.checkLocationAndFetchIfNeeded();
 });
 
-// --- Data Providers ---
-
 final todayPrayerProvider = StateProvider<PrayerDayModel?>((ref) {
   final local = ref.watch(prayerLocalServiceProvider);
-  // This needs to be reactive. 
-  // We can't easily watch Hive box without ValueListenableBuilder or Stream.
-  // We'll rely on manual refresh/invalidation when actions happen.
   return local.getPrayerDay(DateTime.now());
 });
 
-// Stream that updates every minute to check for prayer changes
 final nextPrayerProvider = StreamProvider<Map<String, dynamic>>((ref) async* {
-  // refresh today's data if needed?
-  // We just rely on todayPrayerProvider.
-  
-  // We yield every second for "Remaining Time"
   while (true) {
-    // Re-read today's data in case it changed (though unlikely for *timings*)
     final local = ref.read(prayerLocalServiceProvider);
     final today = local.getPrayerDay(DateTime.now());
 
@@ -88,7 +71,6 @@ final nextPrayerProvider = StreamProvider<Map<String, dynamic>>((ref) async* {
     String nextName = 'Fajr';
     DateTime nextTime = prayers['Fajr']!.add(const Duration(days: 1));
 
-    // Find first prayer strictly after now
     for (var entry in prayers.entries) {
         if (entry.value.isAfter(now)) {
           nextName = entry.key;
@@ -109,8 +91,6 @@ final nextPrayerProvider = StreamProvider<Map<String, dynamic>>((ref) async* {
   }
 });
 
-// --- Performance ---
-
 final dailyPerformanceProvider = Provider.family<PrayerDayModel?, DateTime>((ref, date) {
     final local = ref.watch(prayerLocalServiceProvider);
     return local.getPrayerDay(date);
@@ -118,14 +98,13 @@ final dailyPerformanceProvider = Provider.family<PrayerDayModel?, DateTime>((ref
 
 final monthlyPerformanceProvider = Provider.family<MonthlySummaryModel?, DateTime>((ref, date) {
     final local = ref.watch(prayerLocalServiceProvider);
-// --- Configuration ---
+    return local.getMonthlySummary(date.month, date.year);
+});
 
 final scoreConfigProvider = Provider<PrayerScoreConfigModel>((ref) {
     final local = ref.watch(prayerLocalServiceProvider);
     return local.getConfig();
 });
-
-// --- Actions / Controllers ---
 
 class PrayerStateNotifier extends StateNotifier<AsyncValue<void>> {
   final PrayerRepository _repo;
@@ -142,14 +121,10 @@ final prayerStateProvider = StateNotifierProvider<PrayerStateNotifier, AsyncValu
   return PrayerStateNotifier(repo);
 });
 
-// --- Periodic Location Check ---
-
 final prayerPeriodicCheckProvider = StreamProvider<void>((ref) async* {
     final repo = ref.watch(prayerRepositoryProvider);
-    // Check immediately
     await repo.checkLocationAndFetchIfNeeded();
     
-    // Then every 30 minutes
     await for (final _ in Stream.periodic(const Duration(minutes: 30))) {
        await repo.checkLocationAndFetchIfNeeded();
        yield null;

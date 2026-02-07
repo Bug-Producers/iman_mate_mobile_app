@@ -41,7 +41,6 @@ class MyApp extends ConsumerWidget {
     final themeMode = ref.watch(appThemeProvider);
     final themeNotifier = ref.read(appThemeProvider.notifier);
     
-    // Initialize Prayer Features
     ref.watch(prayerInitProvider);
     ref.watch(prayerPeriodicCheckProvider);
 

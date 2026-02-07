@@ -13,7 +13,7 @@ class MonthlySummaryModel {
   @HiveField(2)
   final double totalScore;
   @HiveField(3)
-  final int level; // 1-6
+  final int level;
 
   MonthlySummaryModel({
     required this.month,
