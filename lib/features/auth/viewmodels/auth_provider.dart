@@ -1,65 +1,52 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import '../../../../core/network/dio_client.dart';
-import '../data/auth_local_service.dart';
-import '../data/auth_repository.dart';
-import '../data/models/auth_models.dart';
+import '../repositories/auth_repository.dart';
+import '../models/auth_models.dart';
 
-final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  return AuthRepository(
-    dioClient: DioClient(),
-    localService: AuthLocalService.instance,
+final googleSignInProvider = Provider<GoogleSignIn>((ref) {
+  return GoogleSignIn(
+    scopes: ['email', 'profile'],
+    clientId: "222170423521-7625ndo4fqjp5qfk31pklp57d87un9hj.apps.googleusercontent.com",
   );
 });
 
 class AuthNotifier extends AsyncNotifier<UserModel?> {
-  late final AuthRepository _repository;
-
   @override
   FutureOr<UserModel?> build() async {
-    _repository = ref.read(authRepositoryProvider);
-    await _repository.checkAuthStatus();
-    return _repository.currentUser;
+    final repository = ref.watch(authRepositoryProvider);
+    await repository.checkAuthStatus();
+    return repository.currentUser;
   }
 
   Future<void> login(String email, String password) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      return await _repository.login(email, password);
+      return await ref.read(authRepositoryProvider).login(email, password);
     });
   }
 
   Future<void> register(String email, String password, String fullName) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      return await _repository.register(email, password, fullName);
+      return await ref.read(authRepositoryProvider).register(email, password, fullName);
     });
   }
 
   Future<void> googleSignIn() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final googleSignIn = GoogleSignIn(
-        scopes: ['email', 'profile'],
-        clientId: "222170423521-7625ndo4fqjp5qfk31pklp57d87un9hj.apps.googleusercontent.com",
-      );
-      
+      final googleSignIn = ref.read(googleSignInProvider);
       final account = await googleSignIn.signIn();
       if (account == null) throw Exception('Google Sign-In cancelled');
-      
       final googleAuth = await account.authentication;
-      final idToken = googleAuth.idToken;
-      
-      if (idToken == null) throw Exception('Failed to retrieve Google ID Token');
-      
-      return await _repository.googleSignIn(idToken);
+      return await ref.read(authRepositoryProvider).googleSignIn(googleAuth.idToken!);
     });
   }
 
   Future<void> logout() async {
     state = const AsyncValue.loading();
-    await _repository.logout();
+    await ref.read(authRepositoryProvider).logout();
     state = const AsyncValue.data(null);
   }
 }

@@ -1,76 +1,44 @@
-import 'package:dio/dio.dart';
-import '../../../../core/network/dio_client.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/auth_models.dart';
 import '../services/auth_local_service.dart';
+import '../services/auth_api_service.dart';
+
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  return AuthRepository(ref);
+});
 
 class AuthRepository {
-  final DioClient _dioClient;
-  final AuthLocalService _localService;
+  final Ref _ref;
 
-  AuthRepository({
-    required DioClient dioClient,
-    required AuthLocalService localService,
-  })  : _dioClient = dioClient,
-        _localService = localService;
+  AuthRepository(this._ref);
+
+  AuthApiService get _apiService => _ref.read(authApiServiceProvider);
+  AuthLocalService get _localService => _ref.read(authLocalServiceProvider);
 
   Future<UserModel> login(String email, String password) async {
-    try {
-      final data = await _dioClient.post(
-        '/auth/login',
-        data: {
-          'email': email,
-          'password': password,
-        },
-      );
-      
-      final user = UserModel.fromJson(data);
-      await _localService.saveUser(user);
-      return user;
-    } catch (e) {
-      rethrow;
-    }
+    final response = await _apiService.login(email, password);
+    final user = UserModel.fromJson(response);
+    await _localService.saveUser(user);
+    return user;
   }
 
   Future<UserModel> register(String email, String password, String fullName) async {
-    try {
-      final data = await _dioClient.post(
-        '/auth/register',
-        data: {
-          'email': email,
-          'password': password,
-          'full_name': fullName,
-        },
-      );
-
-      final user = UserModel.fromJson(data);
-      await _localService.saveUser(user);
-      return user;
-    } catch (e) {
-      rethrow;
-    }
+    final response = await _apiService.register(email, password, fullName);
+    final user = UserModel.fromJson(response);
+    await _localService.saveUser(user);
+    return user;
   }
-  
-  Future<UserModel> googleSignIn(String idToken) async {
-     try {
-      final data = await _dioClient.post(
-        '/auth/google/signin',
-        data: {'id_token': idToken},
-      );
 
-      final user = UserModel.fromJson(data);
-      await _localService.saveUser(user);
-      return user;
-    } catch (e) {
-      rethrow;
-    }
+  Future<UserModel> googleSignIn(String idToken) async {
+    final response = await _apiService.googleSignIn(idToken);
+    final user = UserModel.fromJson(response);
+    await _localService.saveUser(user);
+    return user;
   }
 
   Future<void> logout() async {
     try {
-      // Call backend to invalidate token
-      await _dioClient.post('/auth/logout');
-    } catch (e) {
-      // Continue to clear local storage even if backend fails
-      print('Logout API failed: $e');
+      await _apiService.logout();
     } finally {
       await _localService.clearUser();
     }
@@ -78,31 +46,22 @@ class AuthRepository {
 
   Future<bool> testConnection() async {
     try {
-      final response = await _dioClient.get('/auth/test');
-      return response['status'] == 'ok'; // Assuming backend returns {status: "ok"}
-    } catch (e) {
+      final response = await _apiService.testConnection();
+      return response['status'] == 'ok';
+    } catch (_) {
       return false;
     }
   }
 
   Future<UserModel> fetchCurrentUser() async {
-    try {
-      final data = await _dioClient.get('/auth/me');
-      final user = UserModel.fromJson(data);
-      // Update local storage with fresh data
-      await _localService.saveUser(user);
-      return user;
-    } catch (e) {
-      rethrow;
-    }
+    final response = await _apiService.fetchCurrentUser();
+    final user = UserModel.fromJson(response);
+    await _localService.saveUser(user);
+    return user;
   }
 
   Future<void> checkAuthStatus() async {
     await _localService.init();
-    // Optional: Verify token validity on startup
-    // if (isLoggedIn) {
-    //   try { await fetchCurrentUser(); } catch (_) { await logout(); }
-    // }
   }
 
   UserModel? get currentUser => _localService.getUser();

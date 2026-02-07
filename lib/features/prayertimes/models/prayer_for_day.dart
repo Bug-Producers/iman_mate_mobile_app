@@ -1,7 +1,7 @@
-import 'location.dart';
+import '../../../core/modules/location.dart';
 import 'prayer.dart';
 
-class PrayerTime {
+class PrayerForDay {
   final DateTime date;
   final Location location;
   final Prayer fajr;
@@ -11,7 +11,7 @@ class PrayerTime {
   final Prayer isha;
   final DateTime sunrise;
 
-  PrayerTime({
+  PrayerForDay({
     required this.date,
     required this.location,
     required this.fajr,
@@ -22,23 +22,35 @@ class PrayerTime {
     required this.sunrise,
   });
 
-  factory PrayerTime.fromJson(Map<String, dynamic> json) {
-    final prayers = (json['prayers'] as List)
-        .map((p) => Prayer.fromJson(p))
+  factory PrayerForDay.fromJson(Map<String, dynamic> json) {
+    final String datePart = json['date'];
+    final List<dynamic> prayersJson = json['prayers'];
+
+    final prayers = prayersJson
+        .map((p) => Prayer.fromJson(p, datePart))
         .toList();
 
     Prayer getPrayer(String name) =>
         prayers.firstWhere((p) => p.name.toLowerCase() == name.toLowerCase());
 
-    return PrayerTime(
-      date: DateTime.parse(json['date']),
+    return PrayerForDay(
+      date: DateTime.parse(datePart),
       location: Location.fromJson(json['location']),
       fajr: getPrayer('Fajr'),
       dhuhr: getPrayer('Dhuhr'),
       asr: getPrayer('Asr'),
       maghrib: getPrayer('Maghrib'),
       isha: getPrayer('Isha'),
-      sunrise: DateTime.parse(json['sunrise']),
+      sunrise: DateTime.parse("${datePart}T${json['sunrise']}:00"),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'date': date.toIso8601String().split('T')[0],
+      'location': location.toJson(),
+      'sunrise': "${sunrise.hour.toString().padLeft(2, '0')}:${sunrise.minute.toString().padLeft(2, '0')}",
+      'prayers': [fajr.toJson(), dhuhr.toJson(), asr.toJson(), maghrib.toJson(), isha.toJson()],
+    };
   }
 }

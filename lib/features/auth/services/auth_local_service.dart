@@ -1,40 +1,44 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'models/auth_models.dart';
+import '../models/auth_models.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final authLocalServiceProvider = Provider<AuthLocalService>((ref) {
+  return AuthLocalService();
+});
 
 class AuthLocalService {
   static const String _boxName = 'auth_box';
   static const String _userKey = 'user_data';
 
-  AuthLocalService._();
-  static final AuthLocalService instance = AuthLocalService._();
-
-  Box? _box;
+  Box? get _box => Hive.isBoxOpen(_boxName) ? Hive.box(_boxName) : null;
 
   Future<void> init() async {
-    _box = await Hive.openBox(_boxName);
+    if (!Hive.isBoxOpen(_boxName)) {
+      await Hive.openBox(_boxName);
+    }
   }
 
   Future<void> saveUser(UserModel user) async {
-    if (_box == null) await init();
-    await _box!.put(_userKey, user.toJson());
+    await init();
+    await Hive.box(_boxName).put(_userKey, user.toJson());
   }
 
   UserModel? getUser() {
-    if (_box == null) return null;
-    
-    final data = _box!.get(_userKey);
+    final box = _box;
+    if (box == null) return null;
+    final data = box.get(_userKey);
     if (data != null && data is Map) {
-      return UserModel.fromJson(data);
+      return UserModel.fromJson(Map<String, dynamic>.from(data));
     }
     return null;
   }
 
   Future<void> clearUser() async {
-    if (_box == null) await init();
-    await _box!.delete(_userKey);
+    await init();
+    await Hive.box(_boxName).delete(_userKey);
   }
 
   String? get token => getUser()?.token;
-  
+
   bool get isLoggedIn => token != null && token!.isNotEmpty;
 }
